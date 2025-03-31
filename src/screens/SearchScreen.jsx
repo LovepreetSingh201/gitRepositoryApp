@@ -1,18 +1,25 @@
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as Icon from "react-native-feather";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { fetchSearchResult } from '../../api/GitData';
 import { useNavigation } from '@react-navigation/native';
+import { ValueContext } from '../theme/theme';
+import { useTheme } from '../../context/themeContext';
 
 const SearchScreen = () => {
     const [searchText, setsearchText] = useState("")
     const [searchResult, setsearchResult] = useState([])
+    const [isLoading, setisLoading] = useState(false)
     const navigation = useNavigation()
+
+    const { theme } = useTheme();
     useEffect(() => {
-        getSerachResult(searchText);
+        searchText.length > 0 ?
+            getSerachResult(searchText) : setsearchResult("")
     }, [searchText])
+
     const getSerachResult = async (query) => {
         const data = await fetchSearchResult(query)
         if (data && data.items) {
@@ -20,36 +27,42 @@ const SearchScreen = () => {
         }
     }
     return (
-        <View style={{ backgroundColor: 'rgb(39, 39, 39)', flex: 1 }}>
+        <View style={{ backgroundColor: theme.bgColor, flex: 1 }}>
             <SafeAreaView>
-                <View style={{ backgroundColor: 'white', borderRadius: 50, marginHorizontal: wp(2), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+                <View style={{ backgroundColor: theme.iconBgColor, borderRadius: 50, marginHorizontal: wp(2), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
                     <TextInput
                         placeholder='Search...'
-                        style={{ fontSize: 25, marginLeft: wp(4) }}
+                        placeholderTextColor={'grey'}
+                        style={{ fontSize: hp(2.5), marginLeft: wp(4), color: theme.text }}
                         value={searchText}
                         onChangeText={(value) => setsearchText(value)}
                     />
-                    <TouchableOpacity style={{ backgroundColor: 'rgba(0, 0, 0, 0.29)', borderRadius: 50, padding: wp(3), margin: 5 }}
+                    <TouchableOpacity style={{ backgroundColor: theme.iconBgColor, borderRadius: 50, padding: wp(3), margin: 5 }}
                         onPress={() => navigation.goBack()}
                     >
-                        <Icon.X width={30} height={30} />
+                        <Icon.X width={wp(7)} stroke={theme.icon} height={wp(7)} />
                     </TouchableOpacity>
 
                 </View>
                 <ScrollView>
                     {
                         searchResult.length > 0 ?
-                            <View style={{ padding: wp(5), borderRadius: 30 }}>
+                            <View style={{ padding: wp(5), borderRadius: 30, paddingBottom: hp(10) }}>
+                                <Text style={{ fontSize: hp(1.8), color: theme.text, fontWeight: 600 }}>Results ({searchResult.length})</Text>
 
                                 {
                                     searchResult.map((item, index) => {
                                         const bordWidth = index == searchResult.length - 1 ? 0 : 1
                                         return (
-                                            <TouchableOpacity key={index} style={{ paddingVertical: 5, borderBottomWidth: bordWidth }}
-                                            onPress={()=>navigation.navigate('repository',item)}
+                                            <TouchableOpacity key={index} style={{ flexDirection: 'row', gap: wp(3), paddingVertical: 5, borderBottomWidth: bordWidth, borderBottomColor: 'grey', paddingVertical: hp(1.2) }}
+                                                onPress={() => navigation.navigate('repository', item)}
                                             >
-                                                <Text style={{ fontSize: 20, color: 'white' }}>{item.name}</Text>
-                                                <Text style={{ fontSize: 15, color: 'white' }}>{item.full_name}</Text>
+                                                <Image source={{ uri: item.owner.avatar_url }} style={{ width: wp(12), height: wp(12), borderRadius: 100 }} />
+
+                                                <View>
+                                                    <Text style={{ color: theme.text, fontSize: hp(2), fontWeight: 800 }}>{item.name}</Text>
+                                                    <Text style={{ color: theme.text, fontSize: hp(1.5), }}>{item.full_name}</Text>
+                                                </View>
                                             </TouchableOpacity>
                                         )
                                     })

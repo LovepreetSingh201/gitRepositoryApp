@@ -20,3 +20,7 @@ const apiCall = async (endpoint, params) => {
 export const fetchSearchResult=(query)=>{
     return apiCall(`https://api.github.com/search/repositories?q=${query}`)
 }
+
+export const fetchfavoriteResult=(id)=>{
+    return apiCall(`https://api.github.com/repos/${id}`)
+}
