@@ -6,6 +6,7 @@ import SearchScreen from '../src/screens/SearchScreen';
 import RepositoryScreen from '../src/screens/RepositoryScreen';
 
 import { ThemeProvider } from '../context/themeContext';
+import { StatusBar } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -13,6 +14,7 @@ const AppNavigation = () => {
     return (
         <ThemeProvider>
             <NavigationContainer>
+                <StatusBar barStyle="light-content" backgroundColor="red" />
                 <Stack.Navigator>
                     <Stack.Screen name="Home" component={Homescreen} options={{ headerShown: false }} />
                     <Stack.Screen name="Search" component={SearchScreen} options={{ headerShown: false }} />

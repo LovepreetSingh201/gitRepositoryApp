@@ -1,8 +1,9 @@
 
 export const themeColors={
     light:{
-        bgColor:'rgb(230, 230, 230)',
-        iconBgColor:'rgba(0, 0, 0, 0.1)',
+        bgColor:'rgb(204, 204, 204)',
+        iconBgColor:'rgba(255, 255, 255, 0.43)',
+        // iconBgColor:'rgba(0, 0, 0, 0.08)',
         icon:'black',
         text:'black'
     },
@@ -13,10 +14,3 @@ export const themeColors={
         text:'white'
     }
 }
-
-const dd=[
-    {id:'dddd'},
-    {id:'ddd5d'},
-    {id:'dddd5'},
-    {id:'ddd6d'},
-]

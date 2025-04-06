@@ -1,24 +1,35 @@
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Button, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as Icon from "react-native-feather";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../context/themeContext';
-import { getData, setData } from '../../storage/storageFunc';
+import { addItemToStorage, checkIfItemExists,  clearAllStorage,  removeItemFromStorage} from '../../storage/storageFunc';
 
 const RepositoryScreen = () => {
     const { params: item } = useRoute()
     const navigation = useNavigation()
     const { theme } = useTheme();
 
-    const [isLiked, setisLiked] = useState(false)
+    const [isLiked, setisLiked] = useState()
+
+    useEffect(() => {
+        const check=async()=>{
+            itemExists = await checkIfItemExists(item.full_name)
+            itemExists ? setisLiked(true) : setisLiked(false)
+        }
+        check()
+    }, [])
 
     const addItem = async () => {
-        const newItem = { id: item.full_name }; 
-        const existingItems = await getData('@items_key');
-        const updatedItems = [...existingItems, newItem];
-        await setData('@items_key', updatedItems); 
+        addItemToStorage(item.full_name)
+        setisLiked(true)
+    };
+
+    const removeItem = () => {
+        removeItemFromStorage(item.full_name)
+        setisLiked(false)
     };
 
     return (
@@ -28,17 +39,29 @@ const RepositoryScreen = () => {
                     <TouchableOpacity style={{ backgroundColor: theme.iconBgColor, borderRadius: 50, padding: wp(3), margin: 5 }}
                         onPress={() => navigation.goBack()}
                     >
-                        <Icon.ArrowLeft width={30} height={30} />
+                        <Icon.ArrowLeft width={30} height={30} stroke={theme.icon} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ borderRadius: 50, padding: wp(3), margin: 5 }}
-                        onPress={addItem}
-                    >
-                        <Icon.Heart width={50} height={50} fill={'white'} />
-                    </TouchableOpacity>
+                    {
+                        isLiked ?
+                            <TouchableOpacity style={{ borderRadius: 50, padding: wp(3), margin: 5 }}
+                                // onPress={addItem}
+                                onPress={removeItem}
+                            >
+                                <Icon.Heart width={35} height={35} stroke={'red'} fill={'red'} />
+                            </TouchableOpacity>
+                            :
+                            <TouchableOpacity style={{ borderRadius: 50, padding: wp(3), margin: 5 }}
+                                onPress={addItem}
+                            // onPress={removeItem}
+                            >
+                                <Icon.Heart width={35} height={35} />
+                            </TouchableOpacity>
+
+                    }
                 </View>
                 <ScrollView>
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <Image source={{ uri: item.owner.avatar_url }} style={{ width: wp(30), height: wp(30), borderRadius: 100 }} />
+                        <Image source={{uri: item?.owner?.avatar_url || 'https://pngimg.com/uploads/github/github_PNG67.png'}} style={{ width: wp(30), height: wp(30), borderRadius: 100 }} />
                         <Text style={{ fontSize: hp(3), color: 'white', color: theme.text }}>{item.name}</Text>
                         <Text style={{ fontSize: hp(1.7), color: 'white', color: theme.text }}>{item.full_name}</Text>
                         <Text style={{ fontSize: hp(1.7), color: 'white', color: theme.text }}>{item.private ? "Private" : "Public"}</Text>
